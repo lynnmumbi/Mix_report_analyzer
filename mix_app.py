@@ -9,7 +9,7 @@ st.write("Hey you😃, please upload your Excel file and download the processed 
 uploaded_file = st.file_uploader("Choose an Excel file", type=["xlsx", "xls"])
 
 if uploaded_file:
-    if st.button("Analyze"):
+    if st.button("Click me to Analyze 😊🚀"):
         with st.spinner("Processing..."):
             try:
                 processed_file = process_excel(uploaded_file)  # Calls your function
