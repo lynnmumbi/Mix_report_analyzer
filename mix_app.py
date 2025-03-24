@@ -2,8 +2,8 @@ import streamlit as st
 from Mix_stream import process_excel  # Import your function
 
 # Streamlit UI
-st.title("Mix Excel Workbook Analyzer")
-st.write("Upload an Excel file, analyze it, and download the processed version.")
+st.title("Mix Report Analyzer")
+st.write("Hey you😃, please upload your Excel file and download the processed version.")
 
 # Upload file button
 uploaded_file = st.file_uploader("Choose an Excel file", type=["xlsx", "xls"])
