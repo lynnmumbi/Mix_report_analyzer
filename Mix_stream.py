@@ -405,10 +405,22 @@ def process_excel(file_path):
     # Keep only relevant columns
     filtered_df = filtered_df[["Event", "Metric", "Top 3"]]
 
-    # Save the filtered data back to Excel (new sheet)
-    with pd.ExcelWriter(file_path, mode="a", engine="openpyxl", if_sheet_exists="overlay") as writer:
-        filtered_df.to_excel(writer, sheet_name="Filtered_Top3", index=False)
+    if filtered_df.empty:
+        print("Filtered DataFrame is empty. Check event mapping and filtering conditions.")
+    else:
+        print("✅ Filtered DataFrame successfully created.")
 
+
+
+    # Save the filtered data back to Excel (new sheet)
+    try:
+        with pd.ExcelWriter(file_path, mode="a", engine="openpyxl", if_sheet_exists="overlay") as writer:
+            filtered_df.to_excel(writer, sheet_name="Filtered_Top3", index=False)
+            writer.book.save(file_path)
+            writer.book.close()
+        print("✅ Filtered_Top3 sheet successfully saved.")
+    except Exception as e:
+        print(f"⚠️ Error while saving Excel file: {e}")
 
 
     ################################ANALYSIS#######################################
