@@ -333,7 +333,7 @@ def process_excel(file_path):
     #######################################################################################################################
 
     # Read the 'Top_N' sheet into a DataFrame
-    df = pd.read_excel(file_path, sheet_name="Top_N")
+    df = pd.read_excel(file_path, sheet_name="Top_N", engine="openpyxl")
 
     # Drop unnecessary columns (A, B, and D → 0-based index: 0,1,3)
     df.drop(columns=[df.columns[0], df.columns[1], df.columns[3]], inplace=True)
