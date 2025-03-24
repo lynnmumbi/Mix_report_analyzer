@@ -406,7 +406,7 @@ def process_excel(file_path):
     filtered_df = filtered_df[["Event", "Metric", "Top 3"]]
 
     # Save the filtered data back to Excel (new sheet)
-    with pd.ExcelWriter(file_path, mode="a", engine="openpyxl", if_sheet_exists="replace") as writer:
+    with pd.ExcelWriter(file_path, mode="a", engine="openpyxl", if_sheet_exists="overlay") as writer:
         filtered_df.to_excel(writer, sheet_name="Filtered_Top3", index=False)
 
 
