@@ -15,7 +15,7 @@ def set_bg_image(image_file):
     }}
     
     /* Set text color to white */
-    h1, h2, h3, h4, h5, h6, p, label, span {{
+    h1, h2, h3, h4, h5, h6, p, label {{
         color: white !important;
     }}
 
