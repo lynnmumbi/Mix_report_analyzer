@@ -11,7 +11,19 @@ def set_bg_image(image_file):
     .stApp {{
         background-image: url("data:image/jpg;base64,{encoded_string}");
         background-size: cover;
+        background-position: center;
     }}
+    
+    /* Set text color to white */
+    h1, h2, h3, h4, h5, h6, p, label, span {{
+        color: white !important;
+    }}
+
+    /* Style file uploader text */
+    .stFileUploader {{
+        color: white !important;
+    }}
+
     </style>
     """
     st.markdown(bg_image, unsafe_allow_html=True)
