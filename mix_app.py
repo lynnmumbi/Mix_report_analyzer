@@ -14,7 +14,7 @@ if uploaded_file:
             try:
                 processed_file = process_excel(uploaded_file)  # Calls your function
                 st.session_state.processed_file = processed_file
-                st.success("Analysis complete! Download your file below.")
+                st.success("Analysis complete! Kindly click the button below to download your file.")
             except Exception as e:
                 st.error(f"Error: {e}")
 
@@ -22,7 +22,7 @@ if uploaded_file:
 # Download button (Only appears if analysis is done)
 if "processed_file" in st.session_state and st.session_state.processed_file:
     st.download_button(
-        label="Download Processed File",
+        label="Download File ⬇️",
         data=st.session_state.processed_file,
         file_name="Analyzed_Workbook.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
