@@ -326,11 +326,7 @@ def process_excel(file_path):
     # Apply conditional formatting
     sheet.conditional_formatting.add(range_str, icon_rule)
 
-
-
-
-
-#######################################################################################################################
+    #######################################################################################################################
 
     # Read the 'Top_N' sheet into a DataFrame
     df = pd.read_excel(file_path, sheet_name="Top_N", engine="openpyxl")
@@ -342,25 +338,25 @@ def process_excel(file_path):
     event_metric_mapping = {
         "Night Driving": "DistanceKilometers",
         'Night Driving 11pm- 4am': "DistanceKilometers",
-        "PTRM - Night driving | Alarm":"DistanceKilometers",
+        "PTRM - Night driving | Alarm": "DistanceKilometers",
         'Night driving': "DistanceKilometers",
         'Night Driving Time': "DistanceKilometers",
-        'Ragos Night Driving' : "DistanceKilometers",
-        'Menengai Night Driving' : "DistanceKilometers",
+        'Ragos Night Driving': "DistanceKilometers",
+        'Menengai Night Driving': "DistanceKilometers",
         "3-Axis - Possible Accident (In Trip)": "TotalOccurances",
-        'FreeWheeling':"DistanceKilometers",
+        'FreeWheeling': "DistanceKilometers",
         "Free  Wheeling": "DistanceKilometers",
         "Free wheel violations": "DistanceKilometers",
         'Free Wheeling Violation': "DistanceKilometers",
         "Free Wheeling": "DistanceKilometers",
         'Free wheeling in Neutral': "DistanceKilometers",
-        'Free wheeling' : "DistanceKilometers",
-        'Free Wheeling at Neutral' : "DistanceKilometers",
-        'Freewheeling' : 'DistanceKilometers',
-        'Roy Trans Free Wheeling' : 'DistanceKilometers',
+        'Free wheeling': "DistanceKilometers",
+        'Free Wheeling at Neutral': "DistanceKilometers",
+        'Freewheeling': 'DistanceKilometers',
+        'Roy Trans Free Wheeling': 'DistanceKilometers',
         'Gazlin Freewheeling': "DistanceKilometers",
         "Harsh braking": "TotalOccurances",
-        "PTRM - Harsh braking 14km/h/s | Alarm":"TotalOccurances",
+        "PTRM - Harsh braking 14km/h/s | Alarm": "TotalOccurances",
         'PTRM - Harsh braking 10km/h/s | Record (#/100 km)': "TotalOccurances",
         "Over Revving": "Duration",
         "Over revving": "Duration",
@@ -377,10 +373,10 @@ def process_excel(file_path):
         "PTRM - Overspeeding in 30kph Speed Zone | Alarm": "DistanceKilometers",
         "PTRM - Overspeeding in 50kph Speed Zone | Alarm": "DistanceKilometers",
         'Over speeding above 70km/h': "DistanceKilometers",
-        'Over speeding > 74km/h | Record' : "DistanceKilometers",
+        'Over speeding > 74km/h | Record': "DistanceKilometers",
         'Road Speed Overspeeding': "DistanceKilometers",
-        'Ragos - Over Speeding 70km/h' : "DistanceKilometers",
-        'PTRM - Over speeding | Alarm' : "DistanceKilometers",
+        'Ragos - Over Speeding 70km/h': "DistanceKilometers",
+        'PTRM - Over speeding | Alarm': "DistanceKilometers",
         "Diagnostic: Fault no Engine RPM": "TotalOccurances",
         "Over speeding in location": "DistanceKilometers",
         "Possible impact": "TotalOccurances",
@@ -388,19 +384,21 @@ def process_excel(file_path):
         'PTRM - Harsh acceleration 6km/h/s | Record': "TotalOccurances",
         'PTRM - Harsh braking 10km/h/s | Record': "TotalOccurances",
         'PTRM - Night driving | Record': "DistanceKilometers",
-        'RAIMDF Night Driving' : 'DistanceKilometers',
+        'RAIMDF Night Driving': 'DistanceKilometers',
         'No Go Zone Alert': "TotalOccurances",
-        'Rubis Idle Excessive':"Duration",
-        'EXPEDITERS NIGHT DRIVING 2100Hrs  - 0500Hrs':"DistanceKilometers",
-        'PTRM - Harsh braking | Alarm' : 'TotalOccurances',
+        'Rubis Idle Excessive': "Duration",
+        'EXPEDITERS NIGHT DRIVING 2100Hrs  - 0500Hrs': "DistanceKilometers",
+        'PTRM - Harsh braking | Alarm': 'TotalOccurances',
         'PTRM - Harsh acceleration | Alarm': 'TotalOccurances',
         '3-Axis- Possible Accident Impact': 'TotalOccurances',
-        'Idle - excessive above 15 Mins' : 'Duration'
+        'Idle - excessive above 15 Mins': 'Duration'
 
     }
 
     # Filter the dataset based on the event-metric mapping
-    filtered_df = df[df.apply(lambda row: row["Event"] in event_metric_mapping and row["Metric"] == event_metric_mapping[row["Event"]], axis=1)]
+    filtered_df = df[df.apply(
+        lambda row: row["Event"] in event_metric_mapping and row["Metric"] == event_metric_mapping[row["Event"]],
+        axis=1)]
 
     # Keep only relevant columns
     filtered_df = filtered_df[["Event", "Metric", "Top 3"]]
@@ -410,11 +408,9 @@ def process_excel(file_path):
     else:
         print("✅ Filtered DataFrame successfully created.")
 
-
-
     # Save the filtered data back to Excel (new sheet)
     try:
-        with pd.ExcelWriter(file_path, mode="a", engine="openpyxl", if_sheet_exists="overlay") as writer:
+        with pd.ExcelWriter(file_path, mode="a", engine="openpyxl", if_sheet_exists="replace") as writer:
             filtered_df.to_excel(writer, sheet_name="Filtered_Top3", index=False)
             writer.book.save(file_path)
             writer.book.close()
