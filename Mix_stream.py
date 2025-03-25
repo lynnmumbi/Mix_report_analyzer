@@ -11,7 +11,6 @@ def process_excel(file_path):
     # Loads the workbook
     wb = openpyxl.load_workbook(file_path)
 
-
     # Access the first sheet
     sheet = wb['Scoring']
 
@@ -155,8 +154,7 @@ def process_excel(file_path):
     sheet.cell(row=22, column=1).font = Font(bold=True)
 
 
-    #### adding columns to the table ###########33
-
+    #### adding columns to the table ###########
     # Find the index of the "Advanced Score" column
     header_row = 23
     headers = [cell.value for cell in sheet[header_row]]
@@ -234,7 +232,6 @@ def process_excel(file_path):
                 continue  # Skip invalid scores
 
 
-
     ### THE VLOOKUP PART ###
     prev_month_sheet = wb["Previous_month"]  # This contains last month's scores
 
@@ -265,7 +262,7 @@ def process_excel(file_path):
             sheet.cell(row=row, column=prev_month_col).value = prev_month_data[reg_num]  # VLOOKUP match
 
 
-    #############################################################################
+    ################################# advanced score change ############################################
     # getting the difference of the two advanced scores
     # Find column indexes
     adv_score_col = main_headers.index("Advanced Score") + 1
@@ -282,7 +279,7 @@ def process_excel(file_path):
             sheet.cell(row=row, column=adv_score_change_col).value = curr_score - prev_score  # Compute difference
 
 
-    ################# adding icon sets to advanced score change ####################
+    ######################## adding icon sets to advanced score change ###########################################
 
     # Identify the column letter for "Advanced Score Change"
     advanced_score_change_col = None  # Initialize variable
@@ -326,13 +323,23 @@ def process_excel(file_path):
     # Apply conditional formatting
     sheet.conditional_formatting.add(range_str, icon_rule)
 
-    #######################################################################################################################
+    ########################################## TOP N #############################################################################
 
     # Read the 'Top_N' sheet into a DataFrame
-    df = pd.read_excel(file_path, sheet_name="Top_N", engine="openpyxl")
+    ws = wb["Top_N"]
 
-    # Drop unnecessary columns (A, B, and D → 0-based index: 0,1,3)
-    df.drop(columns=[df.columns[0], df.columns[1], df.columns[3]], inplace=True)
+    # Define the column indexes to remove (1-based index for openpyxl)
+    columns_to_delete = [1, 2]  # A=1, B=2
+
+    # Delete columns from right to left to avoid shifting issues
+    for col in sorted(columns_to_delete, reverse=True):
+        ws.delete_cols(col)
+
+    # Identify the header row
+    header = [cell.value for cell in ws[1]]  # Assuming first row is headers
+    event_col = header.index("Event") + 1  # Convert to 1-based index
+    metric_col = header.index("Metric") + 1
+    top3_col = header.index("Top 3") + 1  # Column for "Top 3"
 
     # Define event-metric mapping
     event_metric_mapping = {
@@ -395,31 +402,50 @@ def process_excel(file_path):
 
     }
 
-    # Filter the dataset based on the event-metric mapping
-    filtered_df = df[df.apply(
-        lambda row: row["Event"] in event_metric_mapping and row["Metric"] == event_metric_mapping[row["Event"]],
-        axis=1)]
+    # Filter rows based on event-metric mapping
+    rows_to_delete = []
+    for row in range(2, ws.max_row + 1):  # Start from row 2 (skip headers)
+        event = ws.cell(row=row, column=event_col).value
+        metric = ws.cell(row=row, column=metric_col).value
 
-    # Keep only relevant columns
-    filtered_df = filtered_df[["Event", "Metric", "Top 3"]]
+        # If event not in mapping OR metric doesn't match expected value → mark for deletion
+        if event not in event_metric_mapping or metric != event_metric_mapping[event]:
+            rows_to_delete.append(row)
 
-    if filtered_df.empty:
-        print("Filtered DataFrame is empty. Check event mapping and filtering conditions.")
-    else:
-        print("✅ Filtered DataFrame successfully created.")
+    # Delete rows from bottom to top to avoid shifting issues
+    for row in reversed(rows_to_delete):
+        ws.delete_rows(row)
 
-    # Save the filtered data back to Excel (new sheet)
-    try:
-        with pd.ExcelWriter(file_path, mode="a", engine="openpyxl", if_sheet_exists="replace") as writer:
-            filtered_df.to_excel(writer, sheet_name="Filtered_Top3", index=False)
-            writer.book.save(file_path)
-            writer.book.close()
-        print("✅ Filtered_Top3 sheet successfully saved.")
-    except Exception as e:
-        print(f"⚠️ Error while saving Excel file: {e}")
+    # Update remaining rows: Fill blank "Top 3" cells
+    for row in range(2, ws.max_row + 1):
+        top3_cell = ws.cell(row=row, column=top3_col)
+        if not top3_cell.value:
+            top3_cell.value = "There were no incidences recorded in this category"
 
+    # Apply borders to the table
+    thin_border = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
 
-    ################################ANALYSIS#######################################
+    # Get the last row and last column
+    last_row = ws.max_row
+    last_col = ws.max_column
+
+    # Apply borders to each cell in the table
+    for row in range(1, last_row + 1):
+        for col in range(1, last_col + 1):
+            ws.cell(row=row, column=col).border = thin_border
+
+    # Save the modified workbook
+    # wb.save(file_path)
+    wb.close()
+
+    print("✅ 'Top_N' sheet successfully updated.")
+
+    ##################################### ANALYSIS  ##############################################
     # lets do the analysis
     analysis_sheet = wb["Analysis"]
 
@@ -590,9 +616,7 @@ def process_excel(file_path):
             start_col += len(selected_headers) + 1
 
 
-
-
-    ############################ utilization #######################################
+    ########################################## utilization #################################################
     # Load workbook
     utilization_sheet = wb["Utilization"]
 
@@ -622,7 +646,6 @@ def process_excel(file_path):
                 old_cell.value = None
 
     print(f"Table successfully shifted down. Data now starts at row 13.")
-
 
 
     # Clear existing formatting in the first 12 rows
@@ -680,7 +703,6 @@ def process_excel(file_path):
     ]
 
 
-
     #color list
     color_fills = [red_fill_util, amber_fill_util, yellow_fill_util,green_fill_util]
 
@@ -705,7 +727,6 @@ def process_excel(file_path):
     table_start_row = 14
     table_end_row = utilization_sheet.max_row - 1  # Exclude last row if it's totals
 
-
     # Apply color coding based on logic you want (adjust as needed)
 
     for row in utilization_sheet.iter_rows(min_row=table_start_row, max_row=table_end_row,
@@ -720,13 +741,6 @@ def process_excel(file_path):
                     cell.fill = amber_fill_util
                 else:
                     cell.fill = red_fill_util
-
-
-
-
-
-
-
 
 
     # Apply colors, descriptions, and borders
@@ -752,12 +766,10 @@ def process_excel(file_path):
             utilization_sheet[f"{chr(col)}{row}"].border = thin_border
 
 
-
     # Merge cells from Q9 to AA11
     utilization_sheet.merge_cells("Q9:AA9")
     utilization_sheet.merge_cells("Q10:AA10")
     utilization_sheet.merge_cells("Q11:AA11")
-
 
 
     # Identify headers dynamically from row 13
@@ -813,7 +825,6 @@ def process_excel(file_path):
     utilization_sheet["Q9"].value = f"The least utilized vehicle was {least_utilized_vehicle} with {least_distance} KM"
     utilization_sheet["Q10"].value = f"The most utilized vehicle was {most_utilized_vehicle} with {most_distance} KM"
     utilization_sheet["Q11"].value = f"The average distance covered by each vehicle in the fleet was {fleet_average:.1f} KM"
-
 
 
     # Format text: bold for key terms
@@ -877,7 +888,7 @@ def process_excel(file_path):
 
 
 
-    #Onto Fuel Analysis
+    ##################################### Onto Fuel Analysis  ##########################################################
 
     # read sheet
     fuel_sheet = wb["Fuel"]
@@ -953,7 +964,6 @@ def process_excel(file_path):
                   "and explore how these solutions can benefit your fleet.")
     cell.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
 
-
     #increasing row height
     fuel_sheet.row_dimensions[3].height = 55
 
@@ -987,7 +997,6 @@ def process_excel(file_path):
                          right=Side(style="thin"),
                          top=Side(style="thin"),
                          bottom=Side(style="thin"))
-
 
 
     #Deleting weird consumption rates( the inf)  and highlighting them
@@ -1038,9 +1047,6 @@ def process_excel(file_path):
         for cell in row:
             if cell.value:  # Only apply borders to non-empty cells
                 cell.border = thin_border
-
-
-
 
 
     #############################sheets to remain###############################################
