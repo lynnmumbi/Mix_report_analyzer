@@ -31,6 +31,18 @@ def set_bg_image(image_file):
 # Call the function
 set_bg_image("background.jfif")  # Ensure the image is in the same folder as your script
 
+st.markdown(
+    """
+    <style>
+        div[data-testid="stButton"] button {
+            color: black !important;  /* Change text color to black */
+            font-weight: bold;        /* Make text bold */
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 
 # Streamlit UI
 st.title("Mix Report Analyzer")
