@@ -1,6 +1,24 @@
 import streamlit as st
 from Mix_stream import process_excel  # Import your function
 
+# Set a background image
+def set_bg_image(image_path):
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background: url("{image_path}") no-repeat center center fixed;
+            background-size: cover;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+# Call the function with your image file path or URL
+set_bg_image("https://your-image-url.com/image.jpg")  # Replace with local or online image
+
+
 # Streamlit UI
 st.title("Mix Report Analyzer")
 st.write("Hey you😃, please upload your Excel file and download the processed version.")
