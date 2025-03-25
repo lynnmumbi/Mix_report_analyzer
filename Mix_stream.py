@@ -1045,7 +1045,7 @@ def process_excel(file_path):
 
     #############################sheets to remain###############################################
     # List of sheets to retain in order
-    sheets_to_keep_and_order = ["Scoring", "Filtered_Top3", "Violation Summary", "Utilization", "Fuel"]
+    sheets_to_keep_and_order = ["Scoring", "Filtered_Top3", "Violation Summary", "Utilization", "Fuel","Top_N"]
 
 
     # Iterate over a list to avoid modifying the workbook object while iterating
