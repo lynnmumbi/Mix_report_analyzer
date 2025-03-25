@@ -11,6 +11,7 @@ def process_excel(file_path):
     # Loads the workbook
     wb = openpyxl.load_workbook(file_path)
 
+
     # Access the first sheet
     sheet = wb['Scoring']
 
@@ -154,7 +155,8 @@ def process_excel(file_path):
     sheet.cell(row=22, column=1).font = Font(bold=True)
 
 
-    #### adding columns to the table ###########
+    #### adding columns to the table ###########33
+
     # Find the index of the "Advanced Score" column
     header_row = 23
     headers = [cell.value for cell in sheet[header_row]]
@@ -232,6 +234,7 @@ def process_excel(file_path):
                 continue  # Skip invalid scores
 
 
+
     ### THE VLOOKUP PART ###
     prev_month_sheet = wb["Previous_month"]  # This contains last month's scores
 
@@ -262,7 +265,7 @@ def process_excel(file_path):
             sheet.cell(row=row, column=prev_month_col).value = prev_month_data[reg_num]  # VLOOKUP match
 
 
-    ################################# advanced score change ############################################
+    #############################################################################
     # getting the difference of the two advanced scores
     # Find column indexes
     adv_score_col = main_headers.index("Advanced Score") + 1
@@ -279,7 +282,7 @@ def process_excel(file_path):
             sheet.cell(row=row, column=adv_score_change_col).value = curr_score - prev_score  # Compute difference
 
 
-    ######################## adding icon sets to advanced score change ###########################################
+    ################# adding icon sets to advanced score change ####################
 
     # Identify the column letter for "Advanced Score Change"
     advanced_score_change_col = None  # Initialize variable
@@ -323,7 +326,7 @@ def process_excel(file_path):
     # Apply conditional formatting
     sheet.conditional_formatting.add(range_str, icon_rule)
 
-    ########################################## TOP N #############################################################################
+    #######################################################################################################################
 
     # Read the 'Top_N' sheet into a DataFrame
     ws = wb["Top_N"]
@@ -335,11 +338,89 @@ def process_excel(file_path):
     for col in sorted(columns_to_delete, reverse=True):
         ws.delete_cols(col)
 
-    # Identify the header row
-    header = [cell.value for cell in ws[1]]  # Assuming first row is headers
-    event_col = header.index("Event") + 1  # Convert to 1-based index
+    # Insert explanation rows in the first 16 rows
+    descriptions = [
+        ["Top violators:"],
+        ["Here are detailed explanations of each violation and potential consequences."],
+        [
+            "Diagnostic: Fault no Engine RPM: This issue causes the vehicles to miss critical events such as freewheeling and over-revving."],
+        [
+            "Free wheeling: Freewheeling is likely to cause Gearbox Damage and engine problems in case the driver engages the wrong gear after freewheeling, there’s also increased chances of an accident."],
+        [
+            "Possible impact: This violation monitors the severity of different impacts and may eventually lead to the shaft of the vehicle breaking, When the drive shaft breaks, the power from the engine can no longer reach the wheels, resulting in a loss of propulsion. Your vehicle may suddenly lose speed and become difficult to accelerate, making it challenging to maintain control."],
+        ["Harsh acceleration: This violation reduces tire life and increases fuel consumption."],
+        [
+            "Harsh braking: This violation causes damage of brake pads & Brake drums, suspension parts and may lead to tire burst and tire reduced tire life."],
+        ["Idle - excessive: This results in higher fuel consumption."],
+        ["Night Driving: Night driving increases the risk of theft and accidents due to poor visibility."],
+        [
+            "Over Revving: This violation causes increased tear and wear of the vehicle engine parts and high fuel consumption."],
+        ["Over Speeding: This violation results in high fuel consumption, and a high risk of accidents."],
+        [
+            "3-Axis - Possible Accident (In Trip): This violation monitors the severity of different impacts and may eventually lead to the shaft of the vehicle breaking, When the drive shaft breaks, the power from the engine can no longer reach the wheels, resulting in a loss of propulsion. Your vehicle may suddenly lose speed and become difficult to accelerate, making it challenging to maintain control."],
+        ["Over speeding in location: This violation results in high fuel consumption, and a high risk of accidents."],
+        [
+            "Out of Green Band driving: This violation indicates the engine is operating outside its optimal RPM range, leading to inefficient fuel consumption, increased wear and tear, and higher emissions."],
+        [""],
+        ["The table below shows the top 3 violators in each RAG label category"]
+    ]
+
+    # Insert explanation rows at the beginning
+    ws.insert_rows(1, amount=len(descriptions))
+
+    # Apply text to inserted rows
+    for i, row_content in enumerate(descriptions, start=1):
+        ws.cell(row=i, column=1, value=row_content[0])  # Insert text in column A
+        ws.row_dimensions[i].height = 22  # Increase row height for better visibility
+
+    # Apply formatting
+    # 1. Merge and center first row across A:H
+    ws.merge_cells("A1:D1")
+    title_cell = ws["A1"]
+    title_cell.font = Font(bold=True, size=16)
+    title_cell.alignment = Alignment(horizontal="center", vertical="center")
+
+    # 2. Enable text wrapping for description rows (2-16)
+    for i in range(2, 17):
+        ws.merge_cells(start_row=i, start_column=1, end_row=i, end_column=21)
+        merged_cell = ws.cell(row=i, column=1)
+        merged_cell.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
+        merged_cell.font = Font(bold=False)  # Ensure it's not bold
+
+    # Identify the new header row after shifting
+    header_row_top = len(descriptions) + 1  # Now it's row 17
+
+    # Extract header values from row 17
+    header = [cell.value for cell in ws[header_row_top]]
+
+    # color header
+    for col in range(1, 5):
+        cell = ws.cell(row=header_row_top, column=col)
+        cell.fill = header_fill
+
+    # Ensure required headers exist
+    required_headers = ["Event", "Metric", "Top 3"]
+    missing_headers = [h for h in required_headers if h not in header]
+
+    if missing_headers:
+        print(f"❌ Error: Missing required columns: {missing_headers} in row {header_row}")
+        print(f"Extracted Headers: {header}")
+        wb.close()
+        raise ValueError("Required headers not found in expected row.")
+
+    # Find column indexes dynamically
+    event_col = header.index("Event") + 1
     metric_col = header.index("Metric") + 1
-    top3_col = header.index("Top 3") + 1  # Column for "Top 3"
+    top3_col = header.index("Top 3") + 1
+
+    # Recalculate last_row based on the last non-empty row after row deletions
+    last_row = header_row_top  # Start from header row
+    for row in range(header_row_top, ws.max_row + 1):
+        if any(ws.cell(row=row, column=col).value for col in range(1, 5)):
+            last_row = row
+
+    if last_row < header_row_top:
+        raise ValueError("No valid data rows found after deletions.")
 
     # Define event-metric mapping
     event_metric_mapping = {
@@ -404,11 +485,14 @@ def process_excel(file_path):
 
     # Filter rows based on event-metric mapping
     rows_to_delete = []
-    for row in range(2, ws.max_row + 1):  # Start from row 2 (skip headers)
+    for row in range(header_row_top + 1, last_row + 1):  # Start from data rows
         event = ws.cell(row=row, column=event_col).value
         metric = ws.cell(row=row, column=metric_col).value
 
-        # If event not in mapping OR metric doesn't match expected value → mark for deletion
+        # Ensure values are valid before comparison
+        if event is None or metric is None:
+            continue  # Skip empty rows
+
         if event not in event_metric_mapping or metric != event_metric_mapping[event]:
             rows_to_delete.append(row)
 
@@ -416,8 +500,16 @@ def process_excel(file_path):
     for row in reversed(rows_to_delete):
         ws.delete_rows(row)
 
+    # Recalculate last_row based on the last non-empty row after row deletions
+    last_row = header_row_top  # Start from header row
+
+    for row in range(header_row_top, ws.max_row + 1):
+        if any(ws.cell(row=row, column=col).value for col in
+               range(1, 5)):  # Check if any of the first 4 columns have data
+            last_row = row  # Update last_row to the last row that contains data
+
     # Update remaining rows: Fill blank "Top 3" cells
-    for row in range(2, ws.max_row + 1):
+    for row in range(header_row_top + 1, ws.max_row + 1):
         top3_cell = ws.cell(row=row, column=top3_col)
         if not top3_cell.value:
             top3_cell.value = "There were no incidences recorded in this category"
@@ -430,13 +522,9 @@ def process_excel(file_path):
         bottom=Side(style='thin')
     )
 
-    # Get the last row and last column
-    last_row = ws.max_row
-    last_col = ws.max_column
-
     # Apply borders to each cell in the table
-    for row in range(1, last_row + 1):
-        for col in range(1, last_col + 1):
+    for row in range(header_row_top, last_row + 1):
+        for col in range(1, 5):
             ws.cell(row=row, column=col).border = thin_border
 
     # Save the modified workbook
@@ -444,8 +532,7 @@ def process_excel(file_path):
     wb.close()
 
     print("✅ 'Top_N' sheet successfully updated.")
-
-    ##################################### ANALYSIS  ##############################################
+    ################################ANALYSIS#######################################
     # lets do the analysis
     analysis_sheet = wb["Analysis"]
 
@@ -616,7 +703,9 @@ def process_excel(file_path):
             start_col += len(selected_headers) + 1
 
 
-    ########################################## utilization #################################################
+
+
+    ############################ utilization #######################################
     # Load workbook
     utilization_sheet = wb["Utilization"]
 
@@ -646,6 +735,7 @@ def process_excel(file_path):
                 old_cell.value = None
 
     print(f"Table successfully shifted down. Data now starts at row 13.")
+
 
 
     # Clear existing formatting in the first 12 rows
@@ -703,6 +793,7 @@ def process_excel(file_path):
     ]
 
 
+
     #color list
     color_fills = [red_fill_util, amber_fill_util, yellow_fill_util,green_fill_util]
 
@@ -727,6 +818,7 @@ def process_excel(file_path):
     table_start_row = 14
     table_end_row = utilization_sheet.max_row - 1  # Exclude last row if it's totals
 
+
     # Apply color coding based on logic you want (adjust as needed)
 
     for row in utilization_sheet.iter_rows(min_row=table_start_row, max_row=table_end_row,
@@ -741,6 +833,13 @@ def process_excel(file_path):
                     cell.fill = amber_fill_util
                 else:
                     cell.fill = red_fill_util
+
+
+
+
+
+
+
 
 
     # Apply colors, descriptions, and borders
@@ -766,10 +865,12 @@ def process_excel(file_path):
             utilization_sheet[f"{chr(col)}{row}"].border = thin_border
 
 
+
     # Merge cells from Q9 to AA11
     utilization_sheet.merge_cells("Q9:AA9")
     utilization_sheet.merge_cells("Q10:AA10")
     utilization_sheet.merge_cells("Q11:AA11")
+
 
 
     # Identify headers dynamically from row 13
@@ -825,6 +926,7 @@ def process_excel(file_path):
     utilization_sheet["Q9"].value = f"The least utilized vehicle was {least_utilized_vehicle} with {least_distance} KM"
     utilization_sheet["Q10"].value = f"The most utilized vehicle was {most_utilized_vehicle} with {most_distance} KM"
     utilization_sheet["Q11"].value = f"The average distance covered by each vehicle in the fleet was {fleet_average:.1f} KM"
+
 
 
     # Format text: bold for key terms
@@ -888,7 +990,7 @@ def process_excel(file_path):
 
 
 
-    ##################################### Onto Fuel Analysis  ##########################################################
+    #Onto Fuel Analysis
 
     # read sheet
     fuel_sheet = wb["Fuel"]
@@ -964,6 +1066,7 @@ def process_excel(file_path):
                   "and explore how these solutions can benefit your fleet.")
     cell.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
 
+
     #increasing row height
     fuel_sheet.row_dimensions[3].height = 55
 
@@ -997,6 +1100,7 @@ def process_excel(file_path):
                          right=Side(style="thin"),
                          top=Side(style="thin"),
                          bottom=Side(style="thin"))
+
 
 
     #Deleting weird consumption rates( the inf)  and highlighting them
@@ -1049,9 +1153,12 @@ def process_excel(file_path):
                 cell.border = thin_border
 
 
+
+
+
     #############################sheets to remain###############################################
     # List of sheets to retain in order
-    sheets_to_keep_and_order = ["Scoring", "Top_N", "Filtered_Top3", "Violation Summary", "Utilization", "Fuel"]
+    sheets_to_keep_and_order = ["Scoring", "Filtered_Top3", "Violation Summary", "Utilization", "Fuel","Top_N"]
 
 
     # Iterate over a list to avoid modifying the workbook object while iterating
