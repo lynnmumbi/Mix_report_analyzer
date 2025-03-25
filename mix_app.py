@@ -1,22 +1,23 @@
 import streamlit as st
 from Mix_stream import process_excel  # Import your function
+import base64
 
-# Set a background image
-def set_bg_image(image_path):
-    st.markdown(
-        f"""
-        <style>
-        .stApp {{
-            background: url("{image_path}") no-repeat center center fixed;
-            background-size: cover;
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+def set_bg_image(image_file):
+    with open(image_file, "rb") as f:
+        encoded_string = base64.b64encode(f.read()).decode()
+    
+    bg_image = f"""
+    <style>
+    .stApp {{
+        background-image: url("data:image/jpg;base64,{encoded_string}");
+        background-size: cover;
+    }}
+    </style>
+    """
+    st.markdown(bg_image, unsafe_allow_html=True)
 
-# Call the function with your image file path or URL
-set_bg_image("https://your-image-url.com/image.jpg")  # Replace with local or online image
+# Call the function
+set_bg_image("background.jfif")  # Ensure the image is in the same folder as your script
 
 
 # Streamlit UI
