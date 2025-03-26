@@ -8,7 +8,7 @@ st.markdown(
         #MainMenu {visibility: hidden;} /* Hides the Streamlit menu (which includes the GitHub icon) */
         footer {visibility: hidden;} /* Hides the footer */
         header {visibility: hidden;} /* Hides the top header */
-        button[title="View profile"] {display: none;} /* Hides the "View Profile" button */
+        button[title="View profile"], div[data-testid="stAppViewProfile"] {display: none !important;}
     </style>
     """,
     unsafe_allow_html=True
