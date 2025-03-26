@@ -1,6 +1,17 @@
 import streamlit as st
 from Mix_stream import process_excel  # Import your function
 
+# Inject custom CSS to hide GitHub icon, footer, and Streamlit branding
+st.markdown(
+    """
+    <style>
+        #MainMenu {visibility: hidden;} /* Hides the Streamlit menu (which includes the GitHub icon) */
+        footer {visibility: hidden;} /* Hides the footer */
+        header {visibility: hidden;} /* Hides the top header */
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # Streamlit UI
 st.title("Mix Report Analyzer")
