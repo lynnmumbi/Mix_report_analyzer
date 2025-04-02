@@ -480,7 +480,12 @@ def process_excel(file_path):
         'PTRM - Harsh braking | Alarm': 'TotalOccurances',
         'PTRM - Harsh acceleration | Alarm': 'TotalOccurances',
         '3-Axis- Possible Accident Impact': 'TotalOccurances',
-        'Idle - excessive above 15 Mins': 'Duration'
+        'Idle - excessive above 15 Mins': 'Duration',
+        'FM Free wheel in neutral': 'DistanceKilometers',
+        'Harsh Acceleration (custom)': 'TotalOccurances',
+        'Harsh Braking (custom)' : 'TotalOccurances',
+        'Out of green Band driving' : 'TotalOccurances'
+        
 
     }
 
@@ -580,6 +585,8 @@ def process_excel(file_path):
                          'Ragos - Over Speeding 70km/h Distance (%)',
                          'PTRM - Over speeding | Alarm Distance (%)',
                          'Over speeding above 80 km/h Distance (%)',
+                         'FM Free wheel in neutral Distance (%)',
+                         'Harsh Braking (custom) (#/100 km)'
                                          ]
 
 
