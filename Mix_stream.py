@@ -127,9 +127,9 @@ def process_excel(file_path):
                     continue  # Skip invalid scores
 
         # Calculate percentages
-        green_percentage = (green_count / total_vehicles) * 100 if total_vehicles > 0 else 0
-        amber_percentage = (amber_count / total_vehicles) * 100 if total_vehicles > 0 else 0
-        red_percentage = (red_count / total_vehicles) * 100 if total_vehicles > 0 else 0
+        green_percentage = round((green_count / total_vehicles) * 100) if total_vehicles > 0 else 0
+        amber_percentage = round((amber_count / total_vehicles) * 100) if total_vehicles > 0 else 0
+        red_percentage = round((red_count / total_vehicles) * 100 )if total_vehicles > 0 else 0
 
         return {
             "Green": {"count": green_count, "percentage": green_percentage},
