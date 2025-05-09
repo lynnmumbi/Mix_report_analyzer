@@ -567,7 +567,6 @@ def process_excel(file_path):
                          'Free wheeling in Neutral Distance (%)',
                          'Roy Trans Free Wheeling Distance (%)',
                          "Harsh braking (#/100 km)",
-                         "Harsh braking (#/100 km)",
                          "PTRM - Harsh braking 14km/h/s | Alarm (#/100 km)",
                          "Over speeding in location Distance (%)",
                          "Free Wheeling Distance (%)",
