@@ -433,6 +433,7 @@ def process_excel(file_path):
         'Menengai Night Driving': "DistanceKilometers",
         "3-Axis - Possible Accident (In Trip)": "TotalOccurances",
         'FreeWheeling': "DistanceKilometers",
+        'Freewheeling Violation': "DistanceKilometers",
         "Free  Wheeling": "DistanceKilometers",
         "Free wheel violations": "DistanceKilometers",
         'Free Wheeling Violation': "DistanceKilometers",
@@ -586,7 +587,8 @@ def process_excel(file_path):
                          'PTRM - Over speeding | Alarm Distance (%)',
                          'Over speeding above 80 km/h Distance (%)',
                          'FM Free wheel in neutral Distance (%)',
-                         'Harsh Braking (custom) (#/100 km)'
+                         'Harsh Braking (custom) (#/100 km)',
+                         'Freewheeling Violation Distance (%)'
                                          ]
 
 
