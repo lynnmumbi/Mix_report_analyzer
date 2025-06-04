@@ -456,6 +456,7 @@ def process_excel(file_path):
         "Harsh acceleration": "TotalOccurances",
         "PTRM - Harsh acceleration 10km/h/s | Alarm": "TotalOccurances",
         "Over Speeding": "DistanceKilometers",
+        "Over speeding":"DistanceKilometers",
         "Over speeding": "DistanceKilometers",
         'Over speeding above 80km/h': "DistanceKilometers",
         'Over speeding above 80 km/h': "DistanceKilometers",
