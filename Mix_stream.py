@@ -515,11 +515,17 @@ def process_excel(file_path):
                range(1, 5)):  # Check if any of the first 4 columns have data
             last_row = row  # Update last_row to the last row that contains data
 
-    # Update remaining rows: Fill blank "Top 3" cells
+    '''# Update remaining rows: Fill blank "Top 3" cells
     for row in range(header_row_top + 1, ws.max_row + 1):
         top3_cell = ws.cell(row=row, column=top3_col)
         if not top3_cell.value:
-            top3_cell.value = "There were no incidences recorded in this category"
+            top3_cell.value = "There were no incidences recorded in this category" '''
+
+    # Delete rows where "Top 3" cell is blank
+    for row in range(ws.max_row, header_row_top, -1):  # Bottom to top
+        top3_cell = ws.cell(row=row, column=top3_col)
+        if not top3_cell.value:
+            ws.delete_rows(row, 1)
 
     # Apply borders to the table
     thin_border = Border(
