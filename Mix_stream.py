@@ -535,6 +535,7 @@ def process_excel(file_path):
         bottom=Side(style='thin')
     )
 
+    last_row = ws.max_row
     # Apply borders to each cell in the table
     for row in range(header_row_top, last_row + 1):
         for col in range(1, 5):
