@@ -450,6 +450,7 @@ def process_excel(file_path):
         'PTRM - Harsh braking 10km/h/s | Record (#/100 km)': "TotalOccurances",
         "Over Revving": "Duration",
         "Over revving": "Duration",
+        "Over revving":  "Duration",
         "Idle - excessive": "Duration",
         'Idle - excessive Timsales': "Duration",
         'Idle - excessive above 10 Mins': "Duration",
