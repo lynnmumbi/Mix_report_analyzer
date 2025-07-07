@@ -330,6 +330,8 @@ def process_excel(file_path):
 
     # Read the 'Top_N' sheet into a DataFrame
     ws = wb["Top_N"]
+    # Rename the sheet
+    ws.title = "Top violators"
 
     # Define the column indexes to remove (1-based index for openpyxl)
     columns_to_delete = [1, 2]  # A=1, B=2
@@ -545,8 +547,7 @@ def process_excel(file_path):
 
     # Save the modified workbook
     # wb.save(file_path)
-    # Rename the sheet
-    ws.title = "Top violators"
+
     wb.close()
 
     print("✅ 'Top_N' sheet successfully updated.")
